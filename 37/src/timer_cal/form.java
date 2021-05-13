@@ -1,7 +1,17 @@
 package timer_cal;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 import com.google.common.base.Stopwatch;
@@ -20,19 +30,32 @@ public class form extends JDialog {
     private JButton ButtonDelete;
     private JLabel labelTime;
     private JTextField textField1;
-    private JTextPane потраченоКалорийTextPane;
+    private JTextPane CalTextPane;
     private JLabel LabelCal;
     private JPanel PanelCal;
     private JButton ButtonPaus;
     private JLabel label_test;
+    private JTextPane UserTextPane;
+    private JButton button_users;
+    private JLabel users_label;
 
     private Timer myTimer;
     private TimerTask mMyTimerTask;
+    public String[] stringArr_form;
+    public String[] stringArr_form_new;
+    private File file;
+
+
+
+
 
 
     public form() {
         setContentPane(contentPane);
         setModal(true);
+
+        file = new File("E:\\политех\\3 курс\\2 семестр\\Технологии разработки качественного программного обеспечения\\Технологии разработки качественного программного обеспечения Лабараторные\\37\\src\\timer_cal\\save.txt");
+
 
 
         ButtonStart.addActionListener(new ActionListener() {
@@ -51,6 +74,36 @@ public class form extends JDialog {
                 if(textField1.getText()!= " ") {
                     comboBox1.addItem(textField1.getText());
                 }
+
+
+                stringArr_form_new = new String[stringArr_form.length+2];
+                for (int i=0; i<stringArr_form.length; i++){
+                    stringArr_form_new[i]=stringArr_form[i];
+                }
+                System.out.println(stringArr_form_new.length);
+
+                stringArr_form_new[stringArr_form_new.length-2]=textField1.getText();
+                stringArr_form_new[stringArr_form_new.length-1]="0";
+
+                PrintWriter writer = null;
+                try {
+                    writer = new PrintWriter(file, "UTF-8");
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                for (int i=0; i<stringArr_form_new.length; i++){
+                    writer.println(stringArr_form_new[i]);
+
+                }
+                writer.close();
+
+                stringArr_form = new String[stringArr_form_new.length];
+                for (int i=0; i<stringArr_form.length; i++){
+                    stringArr_form[i]=stringArr_form_new[i];
+                }
+
             }
         });
         ButtonDelete.addActionListener(new ActionListener() {
@@ -93,10 +146,28 @@ public class form extends JDialog {
 
                 time_stop=false;
                 labelTime.setText(minut + " : " + sec);
-                //LabelCal.setText(""+sec_all+"");
                 cal = calories.view_trening(view_tren);
                 spen_cal = calories.spent_calories(cal, sec_all);
+                for (int i=0; i<stringArr_form.length; i++){
+                    if(stringArr_form[i]==users_label.getText()){
+                        spen_cal=Integer.parseInt(stringArr_form[i+1])+spen_cal;
+                        stringArr_form[i+1]=Integer.toString(spen_cal);
+                    }
+                }
                 LabelCal.setText(" "+spen_cal+" ");
+                PrintWriter writer = null;
+                try {
+                    writer = new PrintWriter(file, "UTF-8");
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                for (int i=0; i<stringArr_form.length; i++){
+                    writer.println(stringArr_form[i]);
+
+                }
+                writer.close();
 
                 sec = 0;
                 minut = 0;
@@ -116,6 +187,25 @@ public class form extends JDialog {
                 time_stop=false;
                 labelTime.setText(minut + " : " + sec);
                 ButtonStart.setEnabled(true);
+            }
+        });
+        button_users.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                users_label.setText(comboBox1.getSelectedItem().toString());
+
+
+                for (int i=0; i<stringArr_form.length; i++){
+                    if(stringArr_form[i]==users_label.getText()){
+                        LabelCal.setText(stringArr_form[i+1]);
+                    }
+                }
+
+                System.out.println(comboBox1.getSelectedItem());
+                System.out.println();
+
+
             }
         });
     }
@@ -142,16 +232,6 @@ public class form extends JDialog {
                             sec = 0;
                         }
                         labelTime.setText(minut + " : " + sec);
-                        /*
-                        if(RadioButton1.isSelected()==true){
-                            label_test.setText(" Присидания1");
-                        }
-                        if(RadioButton2.isSelected()==true){
-                            label_test.setText(" Присидания2");
-                        }
-                        if(RadioButton3.isSelected()==true){
-                            label_test.setText(" Присидания3");
-                        }*/
                     }
                 }
                 catch (InterruptedException er){
@@ -161,15 +241,26 @@ public class form extends JDialog {
         }
         };
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+
+        String[] stringArr;
+        stringArr= main.open_fail();
         form dialog = new form();
+        for(int i=0; i<stringArr.length;i++){
+            if(i==0 | i%2==0){
+                dialog.comboBox1.addItem(stringArr[i]);
+            }
+        }
+        dialog.stringArr_form=stringArr;
+
+        dialog.users_label.setText(stringArr[0]);
+        dialog.LabelCal.setText(stringArr[1]);
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);
-    }
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
 
     }
+
+
 }
+

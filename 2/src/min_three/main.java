@@ -15,11 +15,34 @@ public class main {
 
         System.out.println("a="+a+" b="+b+" c="+c);
 
-        m=min(a, b, c);
+        m=min1(a, b, c);
         System.out.println("min="+m);
     }
 
-    public static int min(int a, int b, int c){
+    public  static  int min2(int a, int b, int c){
+        int m=0;
+        if(a>b){
+            if(b>c){
+                m=c;
+            }
+            else {
+                m=b;
+            }
+        }
+        else {
+            if(a>c){
+                m=c;
+            }
+            else {
+                m=a;
+            }
+        }
+        return m;
+    }
+
+
+
+    public static int min1(int a, int b, int c){
         int m = 0;
         if(a>b){
             if(a>c){
